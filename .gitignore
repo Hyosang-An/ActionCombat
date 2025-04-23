@@ -1,0 +1,57 @@
+#================================================================
+# Unreal Engine
+#================================================================
+
+# Compiled binaries and intermediate files
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Auto-generated project files
+*.opensdf
+*.sdf
+*.suo
+*.user
+*.userprefs
+*.log
+*.vs/
+*.VC.db
+*.VC.opendb
+.ipch/
+
+# Rider & IntelliJ
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+
+# Mac-specific
+.DS_Store
+
+# Linux-specific
+*~ 
+*.swp
+
+# Plugin binaries (optional)
+*/Plugins/*/Binaries/
+
+# Crash dumps
+Saved/Crashes/
+
+# UObject Globals
+*.user.ini
+
+# Backup files
+*.bak
+*.old
+
+#================================================================
+# End of file
+#================================================================
+
+# 2. Git LFS 추적할 파일 확장자 지정
+# git lfs track "*.uasset"
+# git lfs track "*.umap"
