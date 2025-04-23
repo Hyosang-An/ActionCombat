@@ -2,6 +2,10 @@
 # Unreal Engine
 #================================================================
 
+# Assets
+Content/ParagonGreystone/
+Content/ParagonGrux/
+
 # Compiled binaries and intermediate files
 Binaries/
 Build/
@@ -55,3 +59,9 @@ Saved/Crashes/
 # 2. Git LFS 추적할 파일 확장자 지정
 # git lfs track "*.uasset"
 # git lfs track "*.umap"
+
+# 이미 커밋된 경우 
+# git lfs migrate import --fixup --everything
+
+# 이미 커밋된 파일을 .gitignore에 추가한 경우
+# git rm -r --cached .
