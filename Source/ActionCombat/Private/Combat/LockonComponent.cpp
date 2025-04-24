@@ -71,12 +71,14 @@ void ULockonComponent::StartLockon(float Radius)
 	MovementComponent->bUseControllerDesiredRotation = true;
 	// 락온된 적에게 선택되었다는 것을 알려주는 인터페이스 메서드를 호출합니다.
 	IEnemy::Execute_OnSelect(CurrentTargetActor);
+
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
 }
 
 void ULockonComponent::StopLockon()
 {
 	IEnemy::Execute_OnDeselect(CurrentTargetActor);
-	
+
 	// 1) 락온 해제 직전 카메라의 월드 회전값 저장
 	//    PlayerCameraManager를 통해 현재 카메라 회전(월드)을 꺼내올 수 있습니다.
 	const FRotator SavedCameraWorldRot = OwnerController->PlayerCameraManager->GetCameraRotation();
@@ -99,11 +101,13 @@ void ULockonComponent::StopLockon()
 
 	// 6) 저장해 둔 '락온 해제 직전 카메라 월드 회전'을 컨트롤러에 적용
 	OwnerController->SetControlRotation(SavedCameraWorldRot);
+
+	OnUpdatedTargetDelegate.Broadcast(CurrentTargetActor);
 }
 
 void ULockonComponent::ToggleLockon(float Radius)
 {
-	if (CurrentTargetActor)
+	if (IsValid(CurrentTargetActor))
 	{
 		StopLockon();
 	}
@@ -130,7 +134,7 @@ void ULockonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// 락온 타겟이 없으면 업데이트 중단
-	if (!CurrentTargetActor)
+	if (!IsValid(CurrentTargetActor))
 	{
 		return;
 	}

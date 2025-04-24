@@ -15,9 +15,24 @@ class ACTIONCOMBAT_API UPlayerAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurrentSpeed{ 0.f };
 
 	UFUNCTION(blueprintCallable)
 	void UpdateSpeed();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsInCombat{ false };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CurrentDirection{ 0.f };
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void HandleUpdatedTarget(AActor* NewTargetActor);
+
+	UFUNCTION(BlueprintCallable)
+	void UpdateDirection();
+	
+	
 };

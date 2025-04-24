@@ -10,7 +10,7 @@ public class ActionCombat : ModuleRules
 		
 		PublicIncludePaths.AddRange(new string[] { "ActionCombat"});
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AnimGraphRuntime" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
