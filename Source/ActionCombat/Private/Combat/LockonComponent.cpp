@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Interfaces/Enemy.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties
@@ -37,38 +38,45 @@ void ULockonComponent::BeginPlay()
  * 타겟이 발견되면 카메라 회전 입력을 무시하고 캐릭터가 타겟을 자동으로 바라보도록 설정됩니다.
  * 
  * @param Radius 타겟을 검색할 구체 형태의 반경 (기본값: 750)
- */ 
+ */
 void ULockonComponent::StartLockon(float Radius)
 {
 	// 충돌 검사 결과를 저장할 구조체
-	FHitResult			HitResult;
+	FHitResult HitResult;
 	// 현재 캐릭터의 위치 
-	FVector			   CurrentLocaton = OwnerCharacter->GetActorLocation();
+	FVector CurrentLocaton = OwnerCharacter->GetActorLocation();
 	// 충돌 검사시 무시할 대상 설정 (자기 자신은 무시)
 	FCollisionQueryParams IgnoreParams{ FName{ TEXT("Ignore Collision Params") }, false, OwnerCharacter };
 
 	// 현재 위치에서 구체 모양으로 충돌 검사 수행
+	// TODO: 나중에 UWorld::OverlapMultiByChannel이나 UKismetSystemLibrary::SphereOverlapActors 이걸로 원뿔 판정으로 변경하기
 	bool HasHit = GetWorld()->SweepSingleByChannel(HitResult, CurrentLocaton, CurrentLocaton, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Radius), IgnoreParams);
 	if (!HasHit)
 	{
 		return;
 	}
 
-	// UE_LOG(LogTemp, Warning, TEXT("Actor Detected: %s"), *HitResult.GetActor()->GetName());
+	if (!HitResult.GetActor()->Implements<UEnemy>())
+	{
+		return;
+	}
 
 	// 검출된 액터를 현재 타겟으로 설정
 	CurrentTargetActor = HitResult.GetActor();
-
 	// 카메라 회전 입력 무시 설정
 	OwnerController->SetIgnoreLookInput(true);
 	// 이동 방향으로의 자동 회전 비활성화 
 	MovementComponent->bOrientRotationToMovement = false;
 	// 컨트롤러 회전값을 따라가도록 설정
 	MovementComponent->bUseControllerDesiredRotation = true;
+	// 락온된 적에게 선택되었다는 것을 알려주는 인터페이스 메서드를 호출합니다.
+	IEnemy::Execute_OnSelect(CurrentTargetActor);
 }
 
 void ULockonComponent::StopLockon()
 {
+	IEnemy::Execute_OnDeselect(CurrentTargetActor);
+	
 	// 1) 락온 해제 직전 카메라의 월드 회전값 저장
 	//    PlayerCameraManager를 통해 현재 카메라 회전(월드)을 꺼내올 수 있습니다.
 	const FRotator SavedCameraWorldRot = OwnerController->PlayerCameraManager->GetCameraRotation();
@@ -138,7 +146,7 @@ void ULockonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		StopLockon();
 		return;
 	}
-	
+
 	// 타겟 위치를 약간 아래로 조정 (캐릭터 중심점 보정)
 	TargetLocation.Z -= 125;
 
