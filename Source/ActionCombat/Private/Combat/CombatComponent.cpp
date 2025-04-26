@@ -3,6 +3,10 @@
 
 #include "Combat/CombatComponent.h"
 
+#include "GameFramework/Character.h"
+
+#include <rapidjson/rapidjson.h>
+
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
@@ -19,8 +23,7 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OwnerCharacter = Cast<ACharacter>(GetOwner());
 }
 
 
@@ -32,3 +35,30 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// ...
 }
 
+void UCombatComponent::ComboAttack()
+{
+	if (!bCanAttack)
+	{
+		return;
+	}
+	bCanAttack = false;
+
+	if (AttackAnimations.IsEmpty())
+	{
+		return;
+	}
+	OwnerCharacter->PlayAnimMontage(AttackAnimations[ComboCount]);
+
+	ComboCount++;
+
+	int32 MaxComboCount{ AttackAnimations.Num() };
+	if (ComboCount >= MaxComboCount)
+	{
+		ComboCount = 0;
+	}
+}
+
+void UCombatComponent::HandleResetAttack()
+{
+	bCanAttack = true;
+}

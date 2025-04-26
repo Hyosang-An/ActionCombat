@@ -16,6 +16,9 @@ public:
 	// Sets default values for this component's properties
 	UStatsComponent();
 
+	UPROPERTY(EditAnywhere)
+	TMap<FString, float> Stats;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
