@@ -4,6 +4,7 @@
 #include "Combat/CombatComponent.h"
 
 #include "GameFramework/Character.h"
+#include "Interfaces/MainPlayer.h"
 
 #include <rapidjson/rapidjson.h>
 
@@ -37,6 +38,11 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UCombatComponent::ComboAttack()
 {
+	if (IMainPlayer* MainPlayerInterface = Cast<IMainPlayer>(OwnerCharacter); MainPlayerInterface && !MainPlayerInterface->HasEnoughStamina(StaminaCost))
+	{
+		return;
+	}
+	
 	if (!bCanAttack)
 	{
 		return;
@@ -56,6 +62,8 @@ void UCombatComponent::ComboAttack()
 	{
 		ComboCount = 0;
 	}
+
+	OnAttackPerformedDelegate.Broadcast(StaminaCost);
 }
 
 void UCombatComponent::HandleResetAttack()

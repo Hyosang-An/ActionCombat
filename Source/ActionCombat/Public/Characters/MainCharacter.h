@@ -17,6 +17,24 @@ public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UStatsComponent> StatsComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class ULockonComponent> LockonComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UCombatComponent> CombatComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UTraceComponent> TraceComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UBlockComponent> BlockComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UPlayerActionsComponent> PlayerActionsComp;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,12 +42,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<class UPlayerAnimInstance> PlayerAnim;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Interface Overriding
 	virtual float GetDamage() override;
+	virtual bool HasEnoughStamina(float cost) override;
 };

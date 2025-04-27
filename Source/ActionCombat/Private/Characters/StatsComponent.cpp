@@ -3,6 +3,9 @@
 
 #include "Characters/StatsComponent.h"
 
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 // Sets default values for this component's properties
 UStatsComponent::UStatsComponent()
 {
@@ -19,8 +22,6 @@ void UStatsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Stats["Health"]);
-	
 }
 
 
@@ -32,3 +33,52 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
+void UStatsComponent::ReduceHealth(float Amount)
+{
+	if (Stats.Contains(EStat::Health))
+	{
+		if (Stats[EStat::Health] <= 0)
+			return;
+
+		Stats[EStat::Health] -= Amount;
+		Stats[EStat::Health] = FMath::Clamp(Stats[EStat::Health], 0.0f, Stats[EStat::MaxHealth]);
+	}
+}
+
+void UStatsComponent::ReduceStamina(float Amount)
+{
+	if (Stats.Contains(EStat::Stamina))
+	{
+		if (Stats[EStat::Stamina] <= 0)
+			return;
+
+		Stats[EStat::Stamina] -= Amount;
+		Stats[EStat::Stamina] = FMath::Clamp(Stats[EStat::Stamina], 0.0f, Stats[EStat::MaxStamina]);
+	}
+
+	bCanRegenStamina = false;
+
+	// 타이머 방식 대신 사용 가능
+	// FLatentActionInfo LatentActionInfo{ 0, 100, TEXT("EnableRegenStamina"), this };
+	// UKismetSystemLibrary::RetriggerableDelay(this, StaminaDelayDuration, LatentActionInfo);
+
+	// 타이머 방식
+	// 새로운 타이머 등록 (RegenStaminaTimerHandle에 이미 set된 타이머가 있다면 Clear하고 다시 setting)
+	GetWorld()->GetTimerManager().SetTimer(RegenStaminaTimerHandle, this, &UStatsComponent::EnableRegenStamina, StaminaDelayDuration, false);
+}
+
+void UStatsComponent::RegenStamina()
+{
+	if (!bCanRegenStamina)
+		return;
+
+	if (!Stats.Contains(EStat::Stamina))
+		return;
+
+	Stats[EStat::Stamina] = UKismetMathLibrary::FInterpTo_Constant(Stats[EStat::Stamina], Stats[EStat::MaxStamina], GetWorld()->GetDeltaSeconds(), StaminaRegenRate);
+}
+
+void UStatsComponent::EnableRegenStamina()
+{
+	bCanRegenStamina = true;
+}

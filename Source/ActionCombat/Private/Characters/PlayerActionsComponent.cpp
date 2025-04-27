@@ -3,6 +3,10 @@
 
 #include "Characters/PlayerActionsComponent.h"
 
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interfaces/MainPlayer.h"
+
 // Sets default values for this component's properties
 UPlayerActionsComponent::UPlayerActionsComponent()
 {
@@ -19,8 +23,11 @@ void UPlayerActionsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	OwnerCharacter = GetOwner<ACharacter>();
+	MovementComp = OwnerCharacter->GetCharacterMovement();
+
+	MainPlayerInterface = Cast<IMainPlayer>(OwnerCharacter);
+	check(MainPlayerInterface);
 }
 
 
@@ -29,6 +36,40 @@ void UPlayerActionsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	// Sprinting
+	if (bIsSprinting)
+	{
+		// Sprint 불가하면 Walk로 전환됨
+		Sprint();
+	}
+}
+
+void UPlayerActionsComponent::Walk()
+{
+	MovementComp->MaxWalkSpeed = WalkSpeed;
+	bIsSprinting = false;
+}
+
+void UPlayerActionsComponent::SprintStart()
+{
+	MovementComp->MaxWalkSpeed = SprintSpeed;
+	bIsSprinting = true;
+}
+
+void UPlayerActionsComponent::Sprint()
+{
+	float SprintCost = GetWorld()->GetDeltaSeconds() * SprintCostPerSec;
+	if (!MainPlayerInterface->HasEnoughStamina(SprintCost))
+	{
+		// 스태미나 0으로 만들기
+		OnSprintedDelegate.Broadcast(SprintCost);
+		Walk();
+		return;
+	}
+
+	if (OwnerCharacter->GetVelocity().Equals(FVector::ZeroVector, 1))
+		return;
+	
+	OnSprintedDelegate.Broadcast(SprintCost);
 }
 

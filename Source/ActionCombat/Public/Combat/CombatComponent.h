@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttackPerformedSignature, float, Amount);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONCOMBAT_API UCombatComponent : public UActorComponent
@@ -15,6 +16,9 @@ class ACTIONCOMBAT_API UCombatComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UCombatComponent();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttackPerformedSignature OnAttackPerformedDelegate;
 
 	UPROPERTY(EditAnywhere)
 	TArray<TObjectPtr<class UAnimMontage>> AttackAnimations;
@@ -27,6 +31,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanAttack{ true };
+
+	UPROPERTY(EditAnywhere)
+	float StaminaCost{ 5 };
 
 protected:
 	// Called when the game starts
