@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EEnemyState.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/Enemy.h"
 #include "BossCharacter.generated.h"
@@ -12,10 +13,16 @@ class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<EEnemyState> InitialState;
+
+	UPROPERTY(VisibleAnywhere)
+	class UBlackboardComponent* BlackboardComp;
+
 public:
 	// Sets default values for this character's properties
 	ABossCharacter();
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<class UStatsComponent> StatsComp;
 
@@ -23,11 +30,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void DetectPawn(APawn* DetectedPawn, APawn* PawnToDetect);
 };
