@@ -28,6 +28,8 @@ void UPlayerActionsComponent::BeginPlay()
 
 	MainPlayerInterface = Cast<IMainPlayer>(OwnerCharacter);
 	check(MainPlayerInterface);
+
+	Walk();
 }
 
 

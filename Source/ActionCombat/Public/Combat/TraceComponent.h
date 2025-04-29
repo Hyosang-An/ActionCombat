@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FTraceSockets.h"
 #include "Components/ActorComponent.h"
 #include "TraceComponent.generated.h"
 
@@ -11,22 +12,16 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONCOMBAT_API UTraceComponent : public UActorComponent
 {
 	GENERATED_BODY()
-	
+
 private:
-	UPROPERTY(EditAnywhere)
-	FName TraceStartSocketName;
+	UPROPERTY()
+	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComponent;
 
 	UPROPERTY(EditAnywhere)
-	FName TraceEndSocketName;
-
-	UPROPERTY(EditAnywhere)
-	FName RotationSocketName;
+	TArray<FTraceSockets> Sockets;
 
 	UPROPERTY(EditAnywhere)
 	double BoxCollisionLength = 30;
-
-	UPROPERTY()
-	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComponent;
 
 	UPROPERTY(EditAnywhere)
 	bool bDebugMode = false;
@@ -39,7 +34,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool bIsAttacking{ false };
-	
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -3,6 +3,7 @@
 
 #include "Characters/LookAtPlayerComponent.h"
 
+#include "EditorCategoryUtils.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values for this component's properties

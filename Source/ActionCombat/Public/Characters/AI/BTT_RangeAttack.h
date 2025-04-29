@@ -17,6 +17,8 @@ class ACTIONCOMBAT_API UBTT_RangeAttack : public UBTTaskNode
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UAnimMontage> AnimMontage;
 
+	double Threshold {0.9};
+
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

@@ -35,25 +35,33 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	if (!bIsAttacking)
 		return;
 
-	FVector StartSocketLocation = SkeletalMeshComponent->GetSocketLocation(TraceStartSocketName);
-	FVector EndSocketLocation = SkeletalMeshComponent->GetSocketLocation(TraceEndSocketName);
-	FQuat   ShapeRotation = SkeletalMeshComponent->GetSocketQuaternion(RotationSocketName);
+	TArray<FHitResult> AllHitResults;
 
-	TArray<FHitResult> HitResults;
-	double             WeaponDistance = FVector::Dist(StartSocketLocation, EndSocketLocation);
-	FVector            BoxHalfExtent{ BoxCollisionLength, BoxCollisionLength, WeaponDistance };
-	BoxHalfExtent /= 2.0f;
-	FCollisionShape       Box = FCollisionShape::MakeBox(BoxHalfExtent);
-	FVector               CenterLocation = (StartSocketLocation + EndSocketLocation) * 0.5;
-	FCollisionQueryParams IgnoreParams{ TEXT("Ignore Params"), false, GetOwner() }; // 추가로 무시할게 있다면 IgnoreParams.AddIgnoredActor 또는 IgnoreParams.AddIgnoredActors 호출
-	bool                  bHasResult = GetWorld()->SweepMultiByChannel(HitResults, CenterLocation, CenterLocation, ShapeRotation, ECC_GameTraceChannel1, Box, IgnoreParams);
-
-	if (bDebugMode)
+	for (const auto& socket : Sockets)
 	{
-		DrawDebugBox(GetWorld(), CenterLocation, Box.GetExtent(), ShapeRotation, bHasResult ? FColor::Green : FColor::Red, false, 0.3);
+		FVector StartSocketLocation = SkeletalMeshComponent->GetSocketLocation(socket.TraceStartSocketName);
+		FVector EndSocketLocation = SkeletalMeshComponent->GetSocketLocation(socket.TraceEndSocketName);
+		FQuat   ShapeRotation = SkeletalMeshComponent->GetSocketQuaternion(socket.RotationSocketName);
+
+		TArray<FHitResult> HitResults;
+
+		double  WeaponDistance = FVector::Dist(StartSocketLocation, EndSocketLocation);
+		FVector BoxHalfExtent{ BoxCollisionLength, BoxCollisionLength, WeaponDistance };
+		BoxHalfExtent /= 2.0f;
+		FCollisionShape       Box = FCollisionShape::MakeBox(BoxHalfExtent);
+		FVector               CenterLocation = (StartSocketLocation + EndSocketLocation) * 0.5;
+		FCollisionQueryParams IgnoreParams{ TEXT("Ignore Params"), false, GetOwner() }; // 추가로 무시할게 있다면 IgnoreParams.AddIgnoredActor 또는 IgnoreParams.AddIgnoredActors 호출
+		bool                  bHasResult = GetWorld()->SweepMultiByChannel(HitResults, CenterLocation, CenterLocation, ShapeRotation, ECC_GameTraceChannel1, Box, IgnoreParams);
+
+		AllHitResults.Append(HitResults);
+		
+		if (bDebugMode)
+		{
+			DrawDebugBox(GetWorld(), CenterLocation, Box.GetExtent(), ShapeRotation, bHasResult ? FColor::Green : FColor::Red, false, 0.3);
+		}
 	}
 
-	if (HitResults.IsEmpty())
+	if (AllHitResults.IsEmpty())
 		return;
 
 	float     CharacterDamage = 0;
@@ -64,14 +72,14 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	}
 
 	FDamageEvent TargetAttackedEvent;
-	for (const auto& HitResult : HitResults)
+	for (const auto& HitResult : AllHitResults)
 	{
 		AActor* TargetActor = HitResult.GetActor();
 
 		if (TargetsToIgnore.Contains(TargetActor))
 			continue;
 
-		TargetActor->TakeDamage(CharacterDamage, TargetAttackedEvent, GetOwner()->GetInstigatorController(), GetOwner());
+		TargetActor->TakeDamage(CharacterDamage, TargetAttackedEvent, GetOwner<APawn>()->GetController(), GetOwner());
 
 		TargetsToIgnore.AddUnique(TargetActor);
 	}

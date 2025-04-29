@@ -4,6 +4,8 @@
 #include "Characters/AI/BTT_RangeAttack.h"
 
 #include "AIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/EEnemyState.h"
 #include "GameFramework/Character.h"
 
 EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -14,8 +16,19 @@ EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 
 	OwnerCharacter->PlayAnimMontage(AnimMontage);
-	
-	return EBTNodeResult::Succeeded;
 
+	double RandomValue = FMath::RandRange(0.0, 1.0);
 	
+	if (RandomValue > Threshold)
+	{
+		Threshold = 0.9;
+
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Charge);
+	}
+	else
+	{
+		Threshold -= 0.1;
+	}
+
+	return EBTNodeResult::Succeeded;
 }
