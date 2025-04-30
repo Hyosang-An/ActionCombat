@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/EEnemyState.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/Fighter.h"
 
 EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -14,6 +15,18 @@ EBTNodeResult::Type UBTT_RangeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
 	if (!IsValid(OwnerCharacter))
 		return EBTNodeResult::Failed;
+
+	float DistanceWithPlayer = OwnerComp.GetBlackboardComponent()->GetValueAsFloat(TEXT("DistanceWithPlayer"));
+	IFighter* Fighter = Cast<IFighter>(OwnerCharacter);
+	check(Fighter);
+	if (DistanceWithPlayer < Fighter->GetMeleeRange())
+	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum(TEXT("CurrentState"), EEnemyState::Melee);
+
+		// AbortTask직접 호출하지 않아도 현재 구조상 상위 데코레이터가 Observer aborts: Self 로 abort 시켜버림
+		// AbortTask(OwnerComp, NodeMemory);
+		return EBTNodeResult::Aborted;
+	}
 
 	OwnerCharacter->PlayAnimMontage(AnimMontage);
 

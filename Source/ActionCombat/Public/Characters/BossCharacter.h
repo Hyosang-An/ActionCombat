@@ -27,6 +27,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<class UStatsComponent> StatsComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<class UCombatComponent> CombatComp;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,4 +45,8 @@ public:
 	void DetectPawn(APawn* DetectedPawn, APawn* PawnToDetect);
 
 	virtual float GetDamage() override;
+	virtual void Attack() override;
+
+	virtual float GetAnimationDuration() override;
+	virtual float GetMeleeRange() override;
 };

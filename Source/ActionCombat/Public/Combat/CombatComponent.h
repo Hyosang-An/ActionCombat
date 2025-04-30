@@ -35,6 +35,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float StaminaCost{ 5 };
 
+	float AnimationDuration{ 0.f };
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -48,4 +50,8 @@ public:
 
 	UFUNCTION(blueprintCallable)
 	void HandleResetAttack();
+
+	UFUNCTION(BlueprintCallable)
+	void RandomAttack();
+	
 };

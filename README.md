@@ -4,3 +4,5 @@
 # Assets
 * Paragon Greystone
 * paragon Grux
+* FX Variety Pack
+

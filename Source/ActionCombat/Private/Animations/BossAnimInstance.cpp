@@ -3,3 +3,10 @@
 
 #include "Animations/BossAnimInstance.h"
 
+void UBossAnimInstance::UpdateSpeed()
+{
+	if (APawn* PawnOwner = TryGetPawnOwner())
+	{
+		CurrentSpeed = static_cast<float>(PawnOwner->GetVelocity().Length());
+	}
+}
