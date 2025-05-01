@@ -35,25 +35,32 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UStatsComponent::ReduceHealth(float Amount)
 {
-	if (Stats.Contains(EStat::Health))
+	if (Stats.Contains(EStat::Health) && Stats.Contains(EStat::MaxHealth))
 	{
 		if (Stats[EStat::Health] <= 0)
 			return;
 
 		Stats[EStat::Health] -= Amount;
 		Stats[EStat::Health] = FMath::Clamp(Stats[EStat::Health], 0.0f, Stats[EStat::MaxHealth]);
+
+		OnHealthPercentageUpdateDelegate.Broadcast(GetStatPercentage(EStat::Health, EStat::MaxHealth));
+
+		if (Stats[EStat::Health] == 0)
+			OnZeroHealthDelegate.Broadcast();
 	}
 }
 
 void UStatsComponent::ReduceStamina(float Amount)
 {
-	if (Stats.Contains(EStat::Stamina))
+	if (Stats.Contains(EStat::Stamina) && Stats.Contains(EStat::MaxStamina))
 	{
 		if (Stats[EStat::Stamina] <= 0)
 			return;
 
 		Stats[EStat::Stamina] -= Amount;
 		Stats[EStat::Stamina] = FMath::Clamp(Stats[EStat::Stamina], 0.0f, Stats[EStat::MaxStamina]);
+
+		OnStaminaPercentageUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
 	}
 
 	bCanRegenStamina = false;
@@ -76,9 +83,18 @@ void UStatsComponent::RegenStamina()
 		return;
 
 	Stats[EStat::Stamina] = UKismetMathLibrary::FInterpTo_Constant(Stats[EStat::Stamina], Stats[EStat::MaxStamina], GetWorld()->GetDeltaSeconds(), StaminaRegenRate);
+	OnStaminaPercentageUpdateDelegate.Broadcast(GetStatPercentage(EStat::Stamina, EStat::MaxStamina));
 }
 
 void UStatsComponent::EnableRegenStamina()
 {
 	bCanRegenStamina = true;
+}
+
+float UStatsComponent::GetStatPercentage(EStat Current, EStat Max)
+{
+	if (!Stats.Contains(Current) || !Stats.Contains(Max))
+		return 0.0f;
+
+	return Stats[Current] / Stats[Max];
 }

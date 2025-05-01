@@ -31,4 +31,5 @@ void UToggleTraceNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimS
 		return;
 
 	TraceComp->bIsAttacking = false;
+	//TraceComp->HandleResetAttack();
 }

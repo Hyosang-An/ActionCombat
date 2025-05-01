@@ -7,6 +7,11 @@
 #include "Components/ActorComponent.h"
 #include "StatsComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthPercentageUpdateSignature, float, HealthPercentage);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStaminaPercentageUpdateSignature, float, StaminaPercentage);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZeroHealthSignature);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONCOMBAT_API UStatsComponent : public UActorComponent
@@ -29,6 +34,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<EStat, float> Stats;
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnHealthPercentageUpdateSignature OnHealthPercentageUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnStaminaPercentageUpdateSignature OnStaminaPercentageUpdateDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnZeroHealthSignature OnZeroHealthDelegate;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -48,6 +62,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void EnableRegenStamina();
+
+	UFUNCTION(BlueprintPure) // BlueprintPure는 "실행 핀이 없는 함수"로, 멤버변수를 읽기만 가능하고 쓰기는 불가.
+	float GetStatPercentage(EStat Current, EStat Max);
 
 private:
 	// 타이머 핸들
