@@ -20,6 +20,12 @@ class ACTIONCOMBAT_API ABossCharacter : public ACharacter, public IEnemy, public
 	UPROPERTY(VisibleAnywhere)
 	class UBlackboardComponent* BlackboardComp;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UAnimMontage> DeathAnimMontage;
+
+	UPROPERTY()
+	TObjectPtr<class AAIController> AIController;
+
 public:
 	// Sets default values for this character's properties
 	ABossCharacter();
@@ -49,4 +55,13 @@ public:
 
 	virtual float GetAnimationDuration() override;
 	virtual float GetMeleeRange() override;
+
+	UFUNCTION()
+	void HandlePlayerDeath();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleDeath();
+
+	UFUNCTION()
+	void FinishDeathAnim();
 };

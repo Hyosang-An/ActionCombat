@@ -33,6 +33,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateDirection();
-	
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsBlocking{ false };
 };

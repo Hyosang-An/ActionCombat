@@ -4,9 +4,12 @@
 #include "Public/Characters/BossCharacter.h"
 
 #include "AIController.h"
+#include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/MainCharacter.h"
 #include "Characters/StatsComponent.h"
 #include "Combat/CombatComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABossCharacter::ABossCharacter()
@@ -23,9 +26,13 @@ void ABossCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BlackboardComp = GetController<AAIController>()->GetBlackboardComponent();
+	AIController = Cast<AAIController>(GetController());
+
+	BlackboardComp = AIController->GetBlackboardComponent();
 
 	BlackboardComp->SetValueAsEnum(TEXT("CurrentState"), InitialState);
+
+	GetWorld()->GetFirstPlayerController()->GetPawn<AMainCharacter>()->StatsComp->OnZeroHealthDelegate.AddDynamic(this, &ABossCharacter::HandlePlayerDeath);
 }
 
 // Called every frame
@@ -71,4 +78,30 @@ float ABossCharacter::GetAnimationDuration()
 float ABossCharacter::GetMeleeRange()
 {
 	return StatsComp->Stats[EStat::MeleeRange];
+}
+
+void ABossCharacter::HandlePlayerDeath()
+{
+	AIController->GetBlackboardComponent()->SetValueAsEnum(TEXT("Currentstate"), EEnemyState::GameOver);
+}
+
+void ABossCharacter::HandleDeath()
+{
+	float Duration = PlayAnimMontage(DeathAnimMontage);
+	AIController->GetBrainComponent()->StopLogic("defeated");
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	FTimerHandle DestroyTimerHandle;
+	GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ABossCharacter::FinishDeathAnim, Duration + 4, false);
+
+	if (IMainPlayer* MainPlayerInterface = Cast<IMainPlayer>(GetWorld()->GetFirstPlayerController()->GetCharacter()))
+	{
+		MainPlayerInterface->EndLockonWithActor(this);
+	}
+}
+
+void ABossCharacter::FinishDeathAnim()
+{
+	Destroy();
 }

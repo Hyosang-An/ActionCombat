@@ -77,6 +77,9 @@ void ULockonComponent::StartLockon(float Radius)
 
 void ULockonComponent::StopLockon()
 {
+	if (!IsValid(CurrentTargetActor))
+		return;
+	
 	IEnemy::Execute_OnDeselect(CurrentTargetActor);
 
 	// 1) 락온 해제 직전 카메라의 월드 회전값 저장
@@ -136,6 +139,7 @@ void ULockonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	// 락온 타겟이 없으면 업데이트 중단
 	if (!IsValid(CurrentTargetActor))
 	{
+		StopLockon();
 		return;
 	}
 

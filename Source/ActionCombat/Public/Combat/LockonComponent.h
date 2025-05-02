@@ -42,15 +42,15 @@ protected:
 	void StartLockon(float Radius = 750.f);
 
 	UFUNCTION(BlueprintCallable)
-	void StopLockon();
-
-	UFUNCTION(BlueprintCallable)
 	void ToggleLockon(float Radius = 750.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	double BreakLockonDistance{ 1000 };
 
 public:
+	UFUNCTION(BlueprintCallable)
+	void StopLockon();
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

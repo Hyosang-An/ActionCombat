@@ -28,6 +28,9 @@ private:
 
 	TArray<TObjectPtr<AActor>> TargetsToIgnore;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UParticleSystem> HitParticleTemplate;
+
 public:
 	// Sets default values for this component's properties
 	UTraceComponent();

@@ -24,4 +24,6 @@ class ACTIONCOMBAT_API IMainPlayer
 public:
 
 	virtual bool HasEnoughStamina(float cost) = 0;
+
+	virtual void EndLockonWithActor(AActor* TargetActor) = 0;
 };

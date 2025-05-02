@@ -3,6 +3,7 @@
 
 #include "Characters/StatsComponent.h"
 
+#include "Interfaces/Fighter.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -33,8 +34,14 @@ void UStatsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
-void UStatsComponent::ReduceHealth(float Amount)
+void UStatsComponent::ReduceHealth(float Amount, AActor* Opponent)
 {
+	IFighter* FighterInterface = Cast<IFighter>(GetOwner());
+	if (FighterInterface && !FighterInterface->CanTakeDamage(Opponent))
+	{
+		return;
+	}
+	
 	if (Stats.Contains(EStat::Health) && Stats.Contains(EStat::MaxHealth))
 	{
 		if (Stats[EStat::Health] <= 0)

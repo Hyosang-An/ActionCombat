@@ -3,6 +3,9 @@
 
 #include "Combat/BlockComponent.h"
 
+#include "GameFramework/Character.h"
+#include "Interfaces/MainPlayer.h"
+
 // Sets default values for this component's properties
 UBlockComponent::UBlockComponent()
 {
@@ -30,5 +33,27 @@ void UBlockComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+bool UBlockComponent::Check(AActor* Opponent)
+{
+	ACharacter* OwnerCharacter = GetOwner<ACharacter>();
+
+	IMainPlayer* MainPlayerInterface = Cast<IMainPlayer>(OwnerCharacter);
+	if (!MainPlayerInterface)
+		return true;
+
+	FVector OpponentLocation = Opponent->GetActorLocation();
+	FVector OwnerLocation = OwnerCharacter->GetActorLocation();
+	FVector PlayerFowrard = OwnerCharacter->GetActorForwardVector();
+
+	double Dot = FVector::DotProduct((OpponentLocation - OwnerLocation).GetSafeNormal(), PlayerFowrard.GetSafeNormal());
+	if (Dot < FMath::Cos(FMath::DegreesToRadians(45.0)) || !MainPlayerInterface->HasEnoughStamina(StaminaCost))
+		return true;
+
+	OwnerCharacter->PlayAnimMontage(BlockAnimMontage);
+
+	OnBlockDelegate.Broadcast(StaminaCost);
+	return false;
 }
 

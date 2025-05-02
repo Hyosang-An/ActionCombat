@@ -3,6 +3,7 @@
 
 #include "Characters/PlayerActionsComponent.h"
 
+#include "Combat/CombatComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/MainPlayer.h"
@@ -71,7 +72,29 @@ void UPlayerActionsComponent::Sprint()
 
 	if (OwnerCharacter->GetVelocity().Equals(FVector::ZeroVector, 1))
 		return;
-	
+
 	OnSprintedDelegate.Broadcast(SprintCost);
 }
 
+void UPlayerActionsComponent::Roll()
+{
+	if (OwnerCharacter->GetComponentByClass<UCombatComponent>()->bCanAttack == false)
+		return;
+	
+	if (bIsRolling || !MainPlayerInterface->HasEnoughStamina(RollCost))
+		return;
+
+	bIsRolling = true;
+	OnRollDelegate.Broadcast(RollCost);
+
+	FVector Direction = OwnerCharacter->GetVelocity().Length() < 1 ? OwnerCharacter->GetActorForwardVector() : OwnerCharacter->GetCharacterMovement()->GetLastInputVector().GetSafeNormal();
+
+	FRotator NewRot = FRotationMatrix::MakeFromX(Direction).Rotator();
+
+	OwnerCharacter->SetActorRotation(NewRot);
+
+	float Duration = OwnerCharacter->PlayAnimMontage(RollAnimMontage);
+
+	FTimerHandle RollTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(RollTimerHandle, FTimerDelegate::CreateLambda([this]() { bIsRolling = false; }), Duration, false);
+}

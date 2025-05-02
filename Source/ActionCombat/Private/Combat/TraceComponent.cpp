@@ -3,8 +3,10 @@
 
 #include "Combat/TraceComponent.h"
 
+#include "Combat/BlockComponent.h"
 #include "Interfaces/Fighter.h"
 #include "Engine/DamageEvents.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UTraceComponent::UTraceComponent()
@@ -54,7 +56,7 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		bool                  bHasResult = GetWorld()->SweepMultiByChannel(HitResults, CenterLocation, CenterLocation, ShapeRotation, ECC_GameTraceChannel1, Box, IgnoreParams);
 
 		AllHitResults.Append(HitResults);
-		
+
 		if (bDebugMode)
 		{
 			DrawDebugBox(GetWorld(), CenterLocation, Box.GetExtent(), ShapeRotation, bHasResult ? FColor::Green : FColor::Red, false, 0.3);
@@ -82,6 +84,12 @@ void UTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		TargetActor->TakeDamage(CharacterDamage, TargetAttackedEvent, GetOwner<APawn>()->GetController(), GetOwner());
 
 		TargetsToIgnore.AddUnique(TargetActor);
+
+		//UBlockComponent* BlockComponent = TargetActor->FindComponentByClass<UBlockComponent>();
+		//if (BlockComponent && BlockComponent->Check(GetOwner()))
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(this, HitParticleTemplate, HitResult.ImpactPoint);
+		}
 	}
 
 	// ==============================================================================================

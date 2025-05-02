@@ -13,6 +13,13 @@ class ACTIONCOMBAT_API AMainCharacter : public ACharacter, public IMainPlayer, p
 {
 	GENERATED_BODY()
 
+private:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UAnimMontage> DeathAnimMontage;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UAnimMontage> HurtAnimMontage;
+
 public:
 	// Sets default values for this character's properties
 	AMainCharacter();
@@ -51,5 +58,15 @@ public:
 
 	// Interface Overriding
 	virtual float GetDamage() override;
-	virtual bool HasEnoughStamina(float cost) override;
+	virtual bool  HasEnoughStamina(float cost) override;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleDeath();
+
+	virtual void EndLockonWithActor(AActor* TargetActor) override;
+
+	virtual bool CanTakeDamage(AActor* Opponent) override;
+
+	UFUNCTION(BlueprintCallable)
+	void PlayHurtAnim(TSubclassOf<class UCameraShakeBase> CameraShakeTemplate);
 };
